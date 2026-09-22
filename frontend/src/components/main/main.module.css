@@ -1,0 +1,59 @@
+.mainContainer {
+    background-color: #0b0c10;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+.hero {
+    background: linear-gradient(180deg, rgba(15, 17, 23, 0.8) 0%, #0b0c10 100%),
+    url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=1600') center/cover;
+    padding: 100px 40px;
+    text-align: center;
+}
+
+.heroTitle {
+    font-size: 48px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.heroSub {
+    font-size: 18px;
+    color: #a0a5b5;
+    margin-bottom: 32px;
+}
+
+.section {
+    padding: 60px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.sectionTitle {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #ffffff;
+    border-left: 4px solid #ff003c;
+    padding-left: 12px;
+}
+
+.pcCard {
+    background: #141721 !important;
+    border: 1px solid #232838 !important;
+    border-radius: 12px !important;
+    transition: transform 0.3s ease, border-color 0.3s ease !important;
+}
+
+.pcCard:hover {
+    transform: translateY(-6px);
+    border-color: #ff003c !important;
+}
+
+.priceTag {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ff003c;
+}
