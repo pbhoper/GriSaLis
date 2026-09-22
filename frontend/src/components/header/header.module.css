@@ -1,0 +1,37 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #090a0f !important;
+    border-bottom: 1px solid #1f2430;
+    padding: 0 40px !important;
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.logo span {
+    color: #ff003c;
+}
+
+.navMenu {
+    flex: 1;
+    justify-content: center;
+    background: transparent !important;
+    border-bottom: none !important;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
