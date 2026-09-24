@@ -10,6 +10,11 @@ export class ComputerComponentsResolver {
     private readonly computerComponentsService: ComputerComponentsService,
   ) {}
 
+  @Query(() => [ComputerComponent], { name: 'readyPcs' })
+  async readyPcs(): Promise<ComputerComponent[]> {
+    return this.computerComponentsService.findAll();
+  }
+
   @Query(() => [ComputerComponent])
   async components(): Promise<ComputerComponent[]> {
     return this.computerComponentsService.findAll();

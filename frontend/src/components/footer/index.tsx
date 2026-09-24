@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
         <Col xs={12} md={8}>
           <h4 style={{ color: '#fff' }}>Контакты</h4>
           <p>info@grisalis.by</p>
-          <p>8 (800) 775-82-40</p>
+          <p>375 29 814 8029</p>
         </Col>
       </Row>
       <div className={styles.copyright}>

@@ -18,13 +18,13 @@ export const Contacts: React.FC = () => {
           <div style={{ marginTop: 24 }}>
             <Descriptions column={1}>
               <Descriptions.Item label={<span style={{ color: '#fff' }}><EnvironmentOutlined /> Адрес</span>}>
-                <span style={{ color: '#a0a5b5' }}>г. Москва, ул. Пятницкая, д. 42</span>
+                <span style={{ color: '#a0a5b5' }}>офис в г.Минск</span>
               </Descriptions.Item>
               <Descriptions.Item label={<span style={{ color: '#fff' }}><PhoneOutlined /> Телефон</span>}>
-                <span style={{ color: '#ff003c', fontWeight: 'bold' }}>8 (800) 775-82-40</span>
+                <span style={{ color: '#ff003c', fontWeight: 'bold' }}>375 29 814 8029</span>
               </Descriptions.Item>
               <Descriptions.Item label={<span style={{ color: '#fff' }}><ClockCircleOutlined /> Режим работы</span>}>
-                <Tag color="green">Открыто</Tag> Ежедневно с 10:00 до 21:00
+                <Tag color="green">Открыто</Tag> Ежедневно с 10:00 до 23:00
               </Descriptions.Item>
             </Descriptions>
           </div>

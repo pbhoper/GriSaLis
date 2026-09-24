@@ -18,12 +18,46 @@ export class ComputerComponentsService {
   }
 
   async findAll(): Promise<ComputerComponent[]> {
-    return this.componentRepository.find();
+    const components = await this.componentRepository.find();
+
+    if (components.length === 0) {
+      const initialPcs: CreateComputerComponentInput[] = [
+        {
+          name: 'CyberPower Gaming Alpha',
+          category: 'Игровые ПК',
+          price: 85000,
+          description: 'Отличный выбор для Full HD гейминга. Процессор Core i5 + RTX 3060.',
+        },
+        {
+          name: 'Pro Workstation',
+          category: 'Рабочие станции',
+          price: 145000,
+          description: 'Мощный ПК для 3D-моделирования и монтажа видео. Ryzen 7 + RTX 4070.',
+        },
+        {
+          name: 'Gamer Elite Extreme',
+          category: 'Флагманские ПК',
+          price: 260000,
+          description: 'Бескомпромиссная мощность для 4K гейминга. Core i9 + RTX 4080 Super.',
+        },
+        {
+          name: 'Office Pro Compact',
+          category: 'Офисные ПК',
+          price: 35000,
+          description: 'Компактный и тихий ПК для офисных задач и работы с документами.',
+        },
+      ];
+
+      const createdPcs = this.componentRepository.create(initialPcs);
+      return this.componentRepository.save(createdPcs);
+    }
+
+    return components;
   }
 
   async findByCategory(category: string): Promise<ComputerComponent[]> {
     return this.componentRepository.find({
-      where: { category, inStock: true },
+      where: { category },
     });
   }
 
