@@ -1,6 +1,5 @@
 import React from 'react';
-import { Typography, Row, Col, Card, Button, Tag } from 'antd';
-import { ThunderboltOutlined } from '@ant-design/icons';
+import { Typography, Row, Col, Card, Tag } from 'antd';
 import styles from './main.module.css';
 
 const { Title, Paragraph } = Typography;
@@ -21,9 +20,6 @@ export const Main: React.FC = () => {
         <Paragraph className={styles.heroSub}>
           Бескомпромиссная производительность, кастомное охлаждение и эстетика премиум-класса.
         </Paragraph>
-        <Button type="primary" danger size="large" icon={<ThunderboltOutlined />} style={{ height: 50, padding: '0 40px', fontSize: 16 }}>
-          Собрать свой ПК
-        </Button>
       </section>
 
       <section className={styles.section}>
