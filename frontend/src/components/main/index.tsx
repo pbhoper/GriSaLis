@@ -6,9 +6,9 @@ const { Title, Paragraph } = Typography;
 
 export const Main: React.FC = () => {
   const featuredPcs = [
-    { id: 1, name: 'GriSaLis LUMEN', price: 185000, gpu: 'RTX 4070 Ti Super', cpu: 'Intel i7-14700K' },
-    { id: 2, name: 'GriSaLis CYBER', price: 340000, gpu: 'RTX 4090', cpu: 'Intel i9-14900KF' },
-    { id: 3, name: 'GriSaLis PLAY', price: 120000, gpu: 'RTX 4060 Ti', cpu: 'AMD Ryzen 5 7600X' },
+    { id: 1, name: 'GRISALIS LUMEN', price: 185000, gpu: 'RTX 4070 Ti Super', cpu: 'Intel i7-14700K' },
+    { id: 2, name: 'GRISALIS CYBER', price: 340000, gpu: 'RTX 4090', cpu: 'Intel i9-14900KF' },
+    { id: 3, name: 'GRISALIS PLAY', price: 120000, gpu: 'RTX 4060 Ti', cpu: 'AMD Ryzen 5 7600X' },
   ];
 
   return (

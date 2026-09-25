@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssemblyPcRouteImport } from './routes/assembly-pc'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ListPcRouteImport } from './routes/list-pc'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const AssemblyPcRoute = AssemblyPcRouteImport.update({
   path: '/assembly-pc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListPcRoute = ListPcRouteImport.update({
   id: '/list-pc',
   path: '/list-pc',
@@ -32,30 +38,34 @@ const ListPcRoute = ListPcRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assembly-pc': typeof AssemblyPcRoute
+  '/checkout': typeof CheckoutRoute
   '/list-pc': typeof ListPcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assembly-pc': typeof AssemblyPcRoute
+  '/checkout': typeof CheckoutRoute
   '/list-pc': typeof ListPcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assembly-pc': typeof AssemblyPcRoute
+  '/checkout': typeof CheckoutRoute
   '/list-pc': typeof ListPcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/assembly-pc' | '/list-pc'
+  fullPaths: '/' | '/assembly-pc' | '/checkout' | '/list-pc'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/assembly-pc' | '/list-pc'
-  id: '__root__' | '/' | '/assembly-pc' | '/list-pc'
+  to: '/' | '/assembly-pc' | '/checkout' | '/list-pc'
+  id: '__root__' | '/' | '/assembly-pc' | '/checkout' | '/list-pc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssemblyPcRoute: typeof AssemblyPcRoute
+  CheckoutRoute: typeof CheckoutRoute
   ListPcRoute: typeof ListPcRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssemblyPcRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/list-pc': {
       id: '/list-pc'
       path: '/list-pc'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssemblyPcRoute: AssemblyPcRoute,
+  CheckoutRoute: CheckoutRoute,
   ListPcRoute: ListPcRoute,
 }
 export const routeTree = rootRouteImport
