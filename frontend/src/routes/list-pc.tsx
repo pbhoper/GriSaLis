@@ -21,6 +21,7 @@ import {
   ThunderboltOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
+import { useCart } from '../context/CartContext';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -52,6 +53,7 @@ export const Route = createFileRoute('/list-pc')({
 
 function ReadyPcsRouteComponent() {
   const { data, loading, error } = useQuery<{ readyPcs: ReadyPc[] }>(GET_READY_PCS);
+  const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'price_asc' | 'price_desc' | 'default'>('default');
 
@@ -83,14 +85,23 @@ function ReadyPcsRouteComponent() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(price);
 
+  const handleAddToCart = (pc: ReadyPc) => {
+    addToCart({
+      id: pc.id,
+      name: pc.name,
+      price: pc.price,
+    });
+    message.success(`ПК "${pc.name}" добавлен в корзину!`);
+  };
+
   return (
-    <div style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 16px', maxWidth: '1280px', margin: '0 auto' }}>
       <div style={{ marginBottom: 24, textAlign: 'center' }}>
-        <Title level={2}>
+        <Title level={2} style={{ color: '#fff' }}>
           <ThunderboltOutlined style={{ color: '#ff4d4f', marginRight: 8 }} />
           Игровые и рабочие готовые ПК
         </Title>
-        <Text type="secondary">
+        <Text style={{ color: '#8c8c8c' }}>
           Выберите протестированную сборку с официальной гарантией и оперативной доставкой
         </Text>
       </div>
@@ -119,7 +130,7 @@ function ReadyPcsRouteComponent() {
       </Row>
 
       {filteredPcs.length === 0 ? (
-        <Empty description="Компьютеры не найдены" />
+        <Empty description={<span style={{ color: '#8c8c8c' }}>Компьютеры не найдены</span>} />
       ) : (
         <Row gutter={[24, 24]}>
           {filteredPcs.map((pc) => (
@@ -130,11 +141,12 @@ function ReadyPcsRouteComponent() {
               >
                 <Card
                   hoverable
+                  style={{ backgroundColor: '#141414', borderColor: '#262626' }}
                   cover={
                     <img
                       alt={pc.name}
-                      src="https://via.placeholder.com/300x200?text=HyperPC"
-                      style={{ height: 200, objectFit: 'cover' }}
+                      src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&q=80"
+                      style={{ height: 180, objectFit: 'cover' }}
                     />
                   }
                   actions={[
@@ -142,18 +154,18 @@ function ReadyPcsRouteComponent() {
                       type="primary"
                       danger
                       icon={<ShoppingCartOutlined />}
-                      onClick={() => message.success(`ПК "${pc.name}" добавлен в корзину!`)}
+                      onClick={() => handleAddToCart(pc)}
                     >
                       В корзину
                     </Button>,
                   ]}
                 >
                   <Card.Meta
-                    title={<Text strong style={{ fontSize: 16 }}>{pc.name}</Text>}
+                    title={<Text strong style={{ fontSize: 16, color: '#fff' }}>{pc.name}</Text>}
                     description={
-                      <Space direction="vertical" size={4} style={{ width: '100%', marginTop: 8 }}>
+                      <Space orientation="vertical" size={4} style={{ width: '100%', marginTop: 8 }}>
                         {pc.category && <Tag color="blue">{pc.category}</Tag>}
-                        {pc.description && <Text type="secondary">{pc.description}</Text>}
+                        {pc.description && <Text style={{ color: '#8c8c8c', fontSize: 12 }}>{pc.description}</Text>}
 
                         <div style={{ marginTop: 12, textAlign: 'right' }}>
                           <Title level={4} style={{ margin: 0, color: '#ff4d4f' }}>

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { ApolloProvider } from '@apollo/client';
+import { ConfigProvider, theme } from 'antd';
 import { routeTree } from './routeTree.gen';
 import { AuthProvider } from './context/AuthContext';
 import { client } from './graphql/client';
@@ -21,7 +22,17 @@ if (rootElement) {
     <React.StrictMode>
       <ApolloProvider client={client}>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              token: {
+                colorPrimary: '#ff4d4f',
+                colorBgContainer: '#141414',
+              },
+            }}
+          >
+            <RouterProvider router={router} />
+          </ConfigProvider>
         </AuthProvider>
       </ApolloProvider>
     </React.StrictMode>,
