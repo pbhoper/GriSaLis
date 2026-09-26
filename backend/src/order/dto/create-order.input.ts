@@ -1,10 +1,9 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
-import {Field, InputType} from "@nestjs/graphql";
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { Field, InputType, Float } from '@nestjs/graphql';
 
 @InputType()
 export class CreateOrderInput {
-
-  @Field()
+  @Field({ nullable: true })
   @IsNumber()
   @IsOptional()
   userId?: number;
@@ -22,15 +21,14 @@ export class CreateOrderInput {
   @Field()
   @IsString()
   @IsNotEmpty()
-  components: string
+  components: string;
 
   @Field()
   @IsString()
   @IsNotEmpty()
   pcName: string;
 
-  @Field()
-  @IsString()
-  @IsNotEmpty()
+  @Field(() => Float)
+  @IsNumber()
   price: number;
 }

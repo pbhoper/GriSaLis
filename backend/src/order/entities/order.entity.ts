@@ -1,15 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
-import {Field, ObjectType} from "@nestjs/graphql";
+import { Field, ObjectType, Float } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity('orders')
 export class Order {
-
   @Field()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   userId: number;
 
@@ -23,11 +22,15 @@ export class Order {
 
   @Field()
   @Column()
-  components: string
+  components: string;
 
   @Field()
   @Column()
   pcName: string;
+
+  @Field(() => Float)
+  @Column('float', { default: 0 })
+  price: number;
 
   @Field()
   @Column({ default: 'open' })

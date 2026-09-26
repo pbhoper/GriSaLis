@@ -45,7 +45,6 @@ export const Header: React.FC = () => {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(price);
 
-  // Фильтрация вариантов для AutoComplete
   const searchOptions = (data?.readyPcs || [])
     .filter((pc) => pc.name.toLowerCase().includes(searchValue.toLowerCase()))
     .map((pc) => ({
@@ -67,8 +66,6 @@ export const Header: React.FC = () => {
     { key: 'main', label: <Link to="/">Главная</Link> },
     { key: 'assemblies', label: <Link to="/list-pc">Готовые ПК</Link> },
     { key: 'configurator', label: <Link to="/assembly-pc">Конфигуратор</Link> },
-    { key: 'services', label: <Link to="/">Услуги</Link> },
-    { key: 'contacts', label: <Link to="/">Контакты</Link> },
   ];
 
   const userMenuItems = [
