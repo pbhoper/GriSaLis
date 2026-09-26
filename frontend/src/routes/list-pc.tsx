@@ -109,7 +109,7 @@ function ReadyPcsRouteComponent() {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }} justify="space-between" align="middle">
         <Col xs={24} sm={12} md={8}>
           <Input
-            placeholder="Поиск по названию..."
+            placeholder="Поиск по названию"
             prefix={<SearchOutlined />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

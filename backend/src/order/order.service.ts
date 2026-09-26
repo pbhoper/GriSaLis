@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from "./entities/order.entity";
-import { CreateOrderInput } from "./dto/create-order.input";
+import { Order } from './entities/order.entity';
+import { CreateOrderInput } from './dto/create-order.input';
 
 @Injectable()
 export class OrderService {
@@ -18,6 +18,7 @@ export class OrderService {
       address: dto.address,
       components: dto.components,
       pcName: dto.pcName,
+      price: dto.price,
       status: 'open',
     });
 
