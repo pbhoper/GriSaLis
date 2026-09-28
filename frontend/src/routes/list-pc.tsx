@@ -99,7 +99,7 @@ function ReadyPcsRouteComponent() {
       <div style={{ marginBottom: 24, textAlign: 'center' }}>
         <Title level={2} style={{ color: '#fff' }}>
           <ThunderboltOutlined style={{ color: '#ff4d4f', marginRight: 8 }} />
-          Игровые и рабочие готовые ПК
+          Игровые и рабочие готовые ПК и Комплектующие
         </Title>
         <Text style={{ color: '#8c8c8c' }}>
           Выберите протестированную сборку с официальной гарантией и оперативной доставкой

@@ -1,15 +1,15 @@
 import { IsString, IsNotEmpty, IsOptional, IsEmail, MinLength } from 'class-validator';
-import {Field, InputType} from "@nestjs/graphql";
+import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class RegisterAuthInput {
-  @Field({nullable: true})
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   username?: string;
 
   @Field()
-  @IsEmail()
+  @IsEmail({}, { message: 'Некорректный формат email' })
   @IsNotEmpty()
   email: string;
 
@@ -19,12 +19,12 @@ export class RegisterAuthInput {
   @MinLength(6, { message: 'Пароль должен быть не менее 6 символов' })
   password: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty()
-  firstName: string;
+  @IsOptional()
+  firstName?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   lastName?: string;

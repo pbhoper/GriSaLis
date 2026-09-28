@@ -1,9 +1,11 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { AssemblyPcService } from './assembly-pc.service';
 import { Assembly } from './entities/assembly-pc.entity';
 import { CreateAssemblyPcInput } from './dto/create-assembly-pc.input';
-import {GqlAuthGuard} from "../auth/jwt/gql-auth.guard";
+import { GqlAuthGuard } from '../auth/jwt/gql-auth.guard';
+import { Auth } from '../auth/entities/auth.entity';
+import {CurrentUser} from "../auth/decorator/current-user.decorator";
 
 @Resolver(() => Assembly)
 export class AssemblyPcResolver {
@@ -11,35 +13,24 @@ export class AssemblyPcResolver {
 
   @Mutation(() => Assembly)
   @UseGuards(GqlAuthGuard)
-  async createAssembly(
-    @Context() context: any,
-    @Args('input') input: CreateAssemblyPcInput,
-  ): Promise<Assembly> {
-    const userId = context.req.user.id;
-    return this.assemblyPcService.create(userId, input);
+  async createAssembly(@CurrentUser() user: Auth, @Args('input') input: CreateAssemblyPcInput,): Promise<Assembly> {
+    return this.assemblyPcService.create(user.id, input);
   }
 
   @Query(() => [Assembly])
   @UseGuards(GqlAuthGuard)
-  async myAssemblies(@Context() context: any): Promise<Assembly[]> {
-    const userId = context.req.user.id;
-    return this.assemblyPcService.findMyAssemblies(userId);
+  async myAssemblies(@CurrentUser() user: Auth): Promise<Assembly[]> {
+    return this.assemblyPcService.findMyAssemblies(user.id);
   }
 
   @Query(() => Assembly)
-  async assembly(
-    @Args('id', { type: () => Int }) id: number,
-  ): Promise<Assembly> {
+  async assembly(@Args('id', { type: () => Int }) id: number,): Promise<Assembly> {
     return this.assemblyPcService.findOne(id);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
-  async removeAssembly(
-    @Context() context: any,
-    @Args('id', { type: () => Int }) id: number,
-  ): Promise<boolean> {
-    const userId = context.req.user.id;
-    return this.assemblyPcService.remove(id, userId);
+  async removeAssembly(@CurrentUser() user: Auth, @Args('id', { type: () => Int }) id: number,): Promise<boolean> {
+    return this.assemblyPcService.remove(id, user.id);
   }
 }

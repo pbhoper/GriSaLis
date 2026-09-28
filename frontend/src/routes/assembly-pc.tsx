@@ -12,17 +12,19 @@ import {
   Space,
   Divider,
   Statistic,
-  message,
   Tag,
   Empty,
+  Input,
+  App,
 } from 'antd';
 import {
   BuildOutlined,
   ShoppingCartOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-
+import { useCart } from '@/context/CartContext';
 import { GET_COMPONENTS, CREATE_ASSEMBLY_MUTATION } from '@/graphql/builder';
+import { useAuth } from '@/context/AuthContext';
 
 const { Title, Text } = Typography;
 
@@ -46,24 +48,35 @@ const CATEGORIES = [
 ];
 
 export const Route = createFileRoute('/assembly-pc')({
-  component: AssemblyPcRouteComponent,
+  component: () => (
+    <App>
+      <AssemblyPcRouteComponent />
+    </App>
+  ),
 });
 
 function AssemblyPcRouteComponent() {
 
+  const { message: messageApi } = App.useApp();
+  const { isAuthenticated, openAuthModal } = useAuth();
+
+  const { addToCart } = useCart();
   const { data, loading, error } = useQuery<{ components: ComponentItem[] }>(GET_COMPONENTS);
+
   const [createAssembly, { loading: saving }] = useMutation(CREATE_ASSEMBLY_MUTATION);
+  const [assemblyName, setAssemblyName] = useState('Игровой ПК');
+
   const [selectedComponents, setSelectedComponents] = useState<Record<string, ComponentItem | null>>({});
   const components = data?.components || [];
 
   const totalPrice = useMemo(() => {
     return Object.values(selectedComponents).reduce((sum, item) => {
-      return sum + (item ? item.price : 0);
+      return sum + (item ? Number(item.price) : 0);
     }, 0);
   }, [selectedComponents]);
 
   const handleSelectComponent = (categoryKey: string, componentId: string) => {
-    const item = components.find((c) => c.id === componentId) || null;
+    const item = components.find((c) => String(c.id) === String(componentId)) || null;
     setSelectedComponents((prev) => ({
       ...prev,
       [categoryKey]: item,
@@ -78,27 +91,54 @@ function AssemblyPcRouteComponent() {
   };
 
   const handleSaveAssembly = async () => {
-    const componentIds = Object.values(selectedComponents)
-      .filter((item): item is ComponentItem => item !== null)
-      .map((item) => item.id);
-
-    if (componentIds.length === 0) {
-      message.warning('Выберите хотя бы одну комплектующую!');
+    if (!isAuthenticated) {
+      messageApi.warning('Пожалуйста, войдите в аккаунт, чтобы сохранить сборку!');
+      openAuthModal();
       return;
     }
 
+    const selectedList = Object.values(selectedComponents).filter(
+      (item): item is ComponentItem => item !== null
+    );
+
+    if (selectedList.length === 0) {
+      messageApi.warning('Выберите хотя бы одну комплектующую!');
+      return;
+    }
+
+    const componentIds = selectedList.map((item) => Number(item.id));
+
     try {
-      await createAssembly({
+      const response = await createAssembly({
         variables: {
           input: {
+            name: assemblyName || 'Игровой ПК',
+            description: `Сборка из ${selectedList.length} комплектующих`,
             componentIds,
-            totalPrice,
+            totalPrice: Number(totalPrice),
           },
         },
       });
-      message.success('Конфигурация ПК успешно сохранена!');
+
+      const savedAssemblyId = response.data?.createAssembly?.id || Date.now();
+
+      addToCart({
+        id: `assembly-${savedAssemblyId}`,
+        name: assemblyName || 'Игровой ПК',
+        price: Number(totalPrice),
+        type: 'ASSEMBLY',
+        items: selectedList,
+      });
+
+      messageApi.success('Сборка успешно сохранена и добавлена в корзину!');
     } catch (err: any) {
-      message.error(err.message || 'Ошибка при сохранении сборки');
+      console.error('GraphQL Error:', err);
+      if (err.message?.includes('Unauthorized') || err.graphQLErrors?.[0]?.extensions?.code === 'UNAUTHENTICATED') {
+        messageApi.warning('Сессия истекла. Пожалуйста, войдите снова.');
+        openAuthModal();
+      } else {
+        messageApi.error(err.message || 'Ошибка при сохранении сборки');
+      }
     }
   };
 
@@ -129,13 +169,13 @@ function AssemblyPcRouteComponent() {
           Конструктор сборки ПК
         </Title>
         <Text type="secondary">
-          Соберите кастомную конфигурацию. Совместимость компонентов проверяется автоматически.
+          Соберите кастомную конфигурацию. Готовая сборка сохранится в профиле и сразу отправится в корзину.
         </Text>
       </div>
 
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}>
-          <Space direction="vertical" style={{ width: '100%' }} size={16}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={16}>
             {CATEGORIES.map((cat) => {
               const categoryComponents = components.filter(
                 (c) => c.category?.toUpperCase() === cat.key
@@ -154,13 +194,13 @@ function AssemblyPcRouteComponent() {
                       <Select
                         style={{ width: '100%' }}
                         placeholder={`Выберите ${cat.label.toLowerCase()}...`}
-                        value={currentSelected?.id || undefined}
+                        value={currentSelected?.id ? String(currentSelected.id) : undefined}
                         onChange={(val) => handleSelectComponent(cat.key, val)}
                         allowClear
                         onClear={() => handleClearCategory(cat.key)}
                       >
                         {categoryComponents.map((item) => (
-                          <Select.Option key={item.id} value={item.id}>
+                          <Select.Option key={item.id} value={String(item.id)}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <span>{item.name}</span>
                               <Tag color="blue">{formatPrice(item.price)}</Tag>
@@ -201,15 +241,26 @@ function AssemblyPcRouteComponent() {
                 onClick={handleSaveAssembly}
                 style={{ margin: '0 16px', width: 'calc(100% - 32px)', fontWeight: 600 }}
               >
-                Сохранить сборку
+                Сохранить и в корзину
               </Button>,
             ]}
           >
+            <div style={{ marginBottom: 16 }}>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 6 }}>
+                Название сборки:
+              </Text>
+              <Input
+                value={assemblyName}
+                onChange={(e) => setAssemblyName(e.target.value)}
+                placeholder="Например: Игровой ПК 2026"
+              />
+            </div>
+
             <Statistic
               title="Итоговая стоимость"
               value={totalPrice}
               formatter={(value) => formatPrice(Number(value))}
-              valueStyle={{ color: '#ff4d4f', fontWeight: 700 }}
+              styles={{ content: { color: '#ff4d4f', fontWeight: 700 } }}
             />
 
             <Divider style={{ margin: '16px 0' }} />
