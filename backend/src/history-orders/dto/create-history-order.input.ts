@@ -11,4 +11,9 @@ export class CreateHistoryOrderInput {
   @IsString()
   @IsNotEmpty()
   pcName!: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty({ message: 'Укажите адрес доставки' })
+  address!: string;
 }
