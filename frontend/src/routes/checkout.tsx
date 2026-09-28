@@ -1,9 +1,5 @@
-import React, {
-  useState
-} from 'react';
-import {
-  createFileRoute,
-  useNavigate } from '@tanstack/react-router';
+import React, { useState } from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import {
   Typography,
   Button,
@@ -15,34 +11,29 @@ import {
   Result,
   Empty,
   message,
-  Divider
+  Divider,
 } from 'antd';
 import {
   ShoppingOutlined,
   CheckCircleOutlined,
   UserOutlined,
-  HomeOutlined
+  HomeOutlined,
 } from '@ant-design/icons';
-import {
-  useMutation,
-  gql
-} from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const {
-  Title,
-  Text
-} = Typography;
+const { Title, Text } = Typography;
 
 const CREATE_ORDER_MUTATION = gql`
-  mutation CreateOrder($input: CreateOrderInput!) {
-    createOrder(input: $input) {
-      id
-      status
-      createdAt
+    mutation CreateOrder($input: CreateOrderInput!) {
+        createOrder(input: $input) {
+            id
+            status
+            createdAt
+            address
+        }
     }
-  }
 `;
 
 export const Route = createFileRoute('/checkout')({
@@ -50,21 +41,24 @@ export const Route = createFileRoute('/checkout')({
 });
 
 function CheckoutComponent() {
+
   const { cart, totalPrice, removeFromCart } = useCart();
   const { userId, isAuthenticated, openAuthModal } = useAuth();
+
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
+  const [messageApi, contextHolder] = message.useMessage();
   const [createdOrder, setCreatedOrder] = useState<{ id: number; createdAt: string } | null>(null);
 
   const [createOrder, { loading }] = useMutation(CREATE_ORDER_MUTATION, {
     onCompleted: (data) => {
       setCreatedOrder(data.createOrder);
       cart.forEach((item) => removeFromCart(item.id));
-      message.success('Заказ успешно оформлен!');
+      messageApi.success('Заказ успешно оформлен!');
     },
     onError: (err) => {
-      message.error(`Ошибка при оформлении заказа: ${err.message}`);
+      messageApi.error(`Ошибка при оформлении заказа: ${err.message}`);
     },
   });
 
@@ -73,7 +67,7 @@ function CheckoutComponent() {
 
   const handleFinish = (values: { clientName: string; address: string }) => {
     if (cart.length === 0) {
-      message.warning('Ваша корзина пуста!');
+      messageApi.warning('Ваша корзина пуста!');
       return;
     }
 
@@ -97,6 +91,7 @@ function CheckoutComponent() {
   if (createdOrder) {
     return (
       <div style={{ padding: '60px 16px', maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+        {contextHolder}
         <Result
           status="success"
           title={`Заказ №${createdOrder.id} успешно создан!`}
@@ -125,6 +120,7 @@ function CheckoutComponent() {
   if (cart.length === 0) {
     return (
       <div style={{ padding: '80px 16px', textAlign: 'center' }}>
+        {contextHolder}
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={<Text style={{ color: '#8c8c8c' }}>В вашей корзине пока нет товаров</Text>}
@@ -144,6 +140,7 @@ function CheckoutComponent() {
 
   return (
     <div style={{ padding: '40px 16px', maxWidth: '1000px', margin: '0 auto' }}>
+      {contextHolder}
       <Title level={2} style={{ color: '#fff', marginBottom: 24 }}>
         Оформление заказа
       </Title>
@@ -187,6 +184,7 @@ function CheckoutComponent() {
                 <Input
                   prefix={<UserOutlined style={{ color: '#595959' }} />}
                   size="large"
+                  placeholder="Иван Иванов"
                 />
               </Form.Item>
 
@@ -202,6 +200,7 @@ function CheckoutComponent() {
               >
                 <Input.TextArea
                   rows={3}
+                  placeholder="г. Москва, ул. Ленина, д. 10, кв. 5"
                 />
               </Form.Item>
 

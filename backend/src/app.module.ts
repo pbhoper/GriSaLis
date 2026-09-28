@@ -12,6 +12,7 @@ import { ComputerComponentsModule } from './computer-components/computer-compone
 import { AssemblyPcModule } from './assembly-pc/assembly-pc.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { AuthModule } from './auth/auth.module';
+import {OrderModule} from "./order/order.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     ClientModule,
     HistoryOrdersModule,
+    OrderModule,
     GlobalSearchModule,
     ComputerComponentsModule,
     AssemblyPcModule,

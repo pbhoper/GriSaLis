@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
+import { HistoryOrdersService } from '../history-orders/history-orders.service';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    private readonly historyOrdersService: HistoryOrdersService,
   ) {}
 
   async createOrder(dto: CreateOrderInput): Promise<Order> {
@@ -22,7 +24,15 @@ export class OrderService {
       status: 'open',
     });
 
-    return await this.orderRepository.save(newOrder);
+    const savedOrder = await this.orderRepository.save(newOrder);
+
+    await this.historyOrdersService.create(savedOrder.userId, {
+      orderId: savedOrder.id,
+      pcName: savedOrder.pcName,
+      address: savedOrder.address,
+    });
+
+    return savedOrder;
   }
 
   async getUserOrders(userId: number): Promise<Order[]> {

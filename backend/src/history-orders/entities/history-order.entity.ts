@@ -21,6 +21,10 @@ export class HistoryOrder {
   pcName!: string;
 
   @Field()
+  @Column()
+  address!: string;
+
+  @Field()
   @CreateDateColumn()
   createdAt!: Date;
 }
