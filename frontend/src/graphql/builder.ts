@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_COMPONENTS = gql`
-    query GetComputerComponents {
+    query GetComponents {
         components {
             id
             name
@@ -12,11 +12,12 @@ export const GET_COMPONENTS = gql`
 `;
 
 export const CREATE_ASSEMBLY_MUTATION = gql`
-    mutation CreateAssembly($input: CreateAssemblyInput!) {
+    mutation CreateAssembly($input: CreateAssemblyPcInput!) {
         createAssembly(input: $input) {
             id
+            name
             totalPrice
-            createdAt
+            componentIds
         }
     }
 `;

@@ -1,16 +1,24 @@
-import React, {
-  createContext,
-  useContext,
-  useState
-} from 'react';
-import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  Tabs,
-  message
-} from 'antd';
+import React, { createContext, useContext, useState } from 'react';
+import { Modal, Form, Input, Button, Tabs, message, App } from 'antd';
+import { gql, useMutation } from '@apollo/client';
+
+// 1. GraphQL Мутации
+export const LOGIN_MUTATION = gql`
+  mutation Login($input: LoginAuthInput!) {
+    login(input: $input) {
+      accessToken
+      userId
+    }
+  }
+`;
+
+export const REGISTER_MUTATION = gql`
+  mutation Register($input: RegisterAuthInput!) {
+    register(input: $input) {
+      message
+    }
+  }
+`;
 
 interface AuthContextType {
   token: string | null;
@@ -33,6 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
+  // 2. Подключаем мутации Apollo Client
+  const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN_MUTATION);
+  const [registerMutation, { loading: registerLoading }] = useMutation(REGISTER_MUTATION);
+
   const login = (accessToken: string, newUserId: number) => {
     localStorage.setItem('token', accessToken);
     localStorage.setItem('userId', String(newUserId));
@@ -49,14 +61,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     message.info('Вы вышли из системы');
   };
 
-  const handleLoginSubmit = (values: any) => {
-    login('demo-jwt-token-123', 1);
-    message.success('Успешный вход!');
+  // 3. Настоящий логин через БД
+  const handleLoginSubmit = async (values: any) => {
+    try {
+      const response = await loginMutation({
+        variables: {
+          input: {
+            username: values.username,
+            password: values.password,
+          },
+        },
+      });
+
+      const data = response.data?.login;
+      if (data?.accessToken && data?.userId) {
+        login(data.accessToken, Number(data.userId));
+        message.success('Успешный вход в аккаунт!');
+      }
+    } catch (err: any) {
+      console.error('Ошибка авторизации:', err);
+      message.error(err.message || 'Неверный логин или пароль');
+    }
   };
 
-  const handleRegisterSubmit = (values: any) => {
-    login('demo-jwt-token-456', 2);
-    message.success('Регистрация прошла успешно!');
+  // 4. Настоящая регистрация через БД
+  const handleRegisterSubmit = async (values: any) => {
+    try {
+      const response = await registerMutation({
+        variables: {
+          input: {
+            username: values.username,
+            email: values.email,
+            password: values.password,
+          },
+        },
+      });
+
+      const responseMessage = response.data?.register?.message || 'Регистрация прошла успешно!';
+      message.success(responseMessage);
+
+      // После успешной регистрации переключаем пользователя на вкладку входа
+      setActiveTab('login');
+    } catch (err: any) {
+      console.error('Ошибка регистрации:', err);
+      message.error(err.message || 'Ошибка при регистрации');
+    }
   };
 
   const tabItems = [
@@ -66,11 +115,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       children: (
         <Form layout="vertical" onFinish={handleLoginSubmit}>
           <Form.Item
-            label="Email"
+            label="Имя пользователя или Email"
             name="username"
             rules={[{ required: true, message: 'Введите логин!' }]}
           >
-            <Input/>
+            <Input placeholder="admin" />
           </Form.Item>
 
           <Form.Item
@@ -78,11 +127,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name="password"
             rules={[{ required: true, message: 'Введите пароль!' }]}
           >
-            <Input.Password/>
+            <Input.Password placeholder="••••••••" />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-            <Button type="primary" danger htmlType="submit" block size="large">
+            <Button
+              type="primary"
+              danger
+              htmlType="submit"
+              block
+              size="large"
+              loading={loginLoading}
+            >
               Войти
             </Button>
           </Form.Item>
@@ -99,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name="username"
             rules={[{ required: true, message: 'Введите имя пользователя!' }]}
           >
-            <Input/>
+            <Input placeholder="User123" />
           </Form.Item>
 
           <Form.Item
@@ -110,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               { type: 'email', message: 'Введите корректный Email!' },
             ]}
           >
-            <Input/>
+            <Input placeholder="user@example.com" />
           </Form.Item>
 
           <Form.Item
@@ -118,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name="password"
             rules={[{ required: true, message: 'Введите пароль!' }]}
           >
-            <Input.Password/>
+            <Input.Password placeholder="••••••••" />
           </Form.Item>
 
           <Form.Item
@@ -137,11 +193,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }),
             ]}
           >
-            <Input.Password/>
+            <Input.Password placeholder="••••••••" />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-            <Button type="primary" danger htmlType="submit" block size="large">
+            <Button
+              type="primary"
+              danger
+              htmlType="submit"
+              block
+              size="large"
+              loading={registerLoading}
+            >
               Зарегистрироваться
             </Button>
           </Form.Item>
@@ -169,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
         centered
         width={400}
       >
