@@ -16,16 +16,19 @@ export class OrderResolver {
   }
 
   @Query(() => [Order])
+  @UseGuards(GqlAuthGuard)
   async getUserOrders(@Args('userId', { type: () => Int }) userId: number): Promise<Order[]> {
     return await this.orderService.getUserOrders(userId);
   }
 
-  @Query(() => Order)
+  @Mutation(() => Order)
+  @UseGuards(GqlAuthGuard)
   async confirmOrder(@Args('id', { type: () => Int }) id: number): Promise<Order> {
     return await this.orderService.confirmOrder(id);
   }
 
-  @Query(() => Order)
+  @Mutation(() => Order)
+  @UseGuards(GqlAuthGuard)
   async cancelOrder(@Args('id', { type: () => Int }) id: number): Promise<Order> {
     return await this.orderService.cancelOrder(id);
   }

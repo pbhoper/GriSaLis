@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { HistoryOrdersService } from './history-orders.service';
 import { HistoryOrdersResolver } from './history-orders.resolver';
 import { HistoryOrder } from './entities/history-order.entity';
+import { HistoryOrdersController } from "./history-orders.controller";
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { HistoryOrder } from './entities/history-order.entity';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     AuthModule,
   ],
+  controllers: [HistoryOrdersController],
   providers: [HistoryOrdersService, HistoryOrdersResolver],
   exports: [HistoryOrdersService],
 })
