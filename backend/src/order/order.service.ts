@@ -1,17 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
-import { HistoryOrdersService } from '../history-orders/history-orders.service';
+import { ClientKafka } from '@nestjs/microservices';
 
 @Injectable()
-export class OrderService {
+export class OrderService implements OnModuleInit {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    private readonly historyOrdersService: HistoryOrdersService,
+
+    @Inject('KAFKA_SERVICE')
+    private readonly kafkaClient: ClientKafka,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    await this.kafkaClient.connect();
+  }
 
   async createOrder(dto: CreateOrderInput): Promise<Order> {
     const newOrder = this.orderRepository.create({
@@ -26,11 +32,16 @@ export class OrderService {
 
     const savedOrder = await this.orderRepository.save(newOrder);
 
-    await this.historyOrdersService.create(savedOrder.userId, {
-      orderId: savedOrder.id,
-      pcName: savedOrder.pcName,
-      address: savedOrder.address,
-    });
+    this.kafkaClient.emit(
+      'order_created',
+      JSON.stringify({
+        userId: savedOrder.userId,
+        orderId: savedOrder.id,
+        pcName: savedOrder.pcName,
+        address: savedOrder.address,
+        price: savedOrder.price,
+      }),
+    );
 
     return savedOrder;
   }
@@ -47,7 +58,18 @@ export class OrderService {
     if (!order) throw new NotFoundException('Заказ не найден');
 
     order.status = 'confirmed';
-    return await this.orderRepository.save(order);
+    const updatedOrder = await this.orderRepository.save(order);
+
+    this.kafkaClient.emit(
+      'order_confirmed',
+      JSON.stringify({
+        orderId: updatedOrder.id,
+        userId: updatedOrder.userId,
+        status: updatedOrder.status,
+      }),
+    );
+
+    return updatedOrder;
   }
 
   async cancelOrder(orderId: number): Promise<Order> {
@@ -55,6 +77,17 @@ export class OrderService {
     if (!order) throw new NotFoundException('Заказ не найден');
 
     order.status = 'cancelled';
-    return await this.orderRepository.save(order);
+    const updatedOrder = await this.orderRepository.save(order);
+
+    this.kafkaClient.emit(
+      'order_cancelled',
+      JSON.stringify({
+        orderId: updatedOrder.id,
+        userId: updatedOrder.userId,
+        status: updatedOrder.status,
+      }),
+    );
+
+    return updatedOrder;
   }
 }
